@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memorygame/data/data.dart';
-import 'package:memorygame/module/tile_module.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -8,6 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.grey
       ),
@@ -23,20 +24,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  List<TileModel> pairs = new List<TileModel>();
-  List<TileModel> visiblePairs = new List<TileModel>();
-
   @override
   void initState(){
     super.initState();
     pairs = getPairs();
     pairs.shuffle();
     visiblePairs = pairs;
-    select=true;
+    selected=true;
     Future.delayed(const Duration(seconds: 5),(){
         setState(() {
           visiblePairs = getQuestions();
-          select=false;
+          selected=false;
         });
     });
   }
@@ -49,24 +47,39 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: <Widget>[
             SizedBox(height: 40,),
-            Text("$points/800",style: TextStyle(
+            points != 800 ? Column(
+            children: <Widget>[
+              Text("$points/800",style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold
             ),),
             Text("Points"),
+            ],
+            ) : Container(),
             SizedBox(height:20 ,),
-            GridView(
+            points != 800 ? GridView(
               shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 mainAxisSpacing: 0.0,
                 maxCrossAxisExtent: 100),
-                children: List.generate(pairs.length,(index){
+                children: List.generate(visiblePairs.length,(index){
                   return Tile(
-                    imageAssetPath: pairs[index].getImageAssetPath(),
-                    selected: pairs[index].getIsSelected(),
+                    imageAssetPath: visiblePairs[index].getImageAssetPath(),
                     parent: this,
+                    tileIndex: index,
                     );
                 })    
+            ) : Container(
+               padding: EdgeInsets.symmetric(vertical: 12,horizontal: 24),
+               decoration: BoxDecoration(
+                 color: Colors.blue,
+                 borderRadius: BorderRadius.circular(24)
+               ),
+               child: Text("Replay", style: TextStyle(
+                 fontSize: 17,
+                 fontWeight: FontWeight.bold,
+                 color: Colors.white
+               ),),
             ),
           ],
         ),
@@ -78,9 +91,9 @@ class _HomePageState extends State<HomePage> {
 class Tile extends StatefulWidget {
 
   String imageAssetPath;
-  bool selected;
+  int tileIndex;
   _HomePageState parent;
-  Tile({this.imageAssetPath,this.selected,this.parent});
+  Tile({this.imageAssetPath,this.parent,this.tileIndex});
 
   @override
   _TileState createState() => _TileState();
@@ -91,13 +104,50 @@ class _TileState extends State<Tile> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
-        if(!select){
+        if(!selected){
+          if(selectedImageAssetPath !=""){
+            if( selectedImageAssetPath == pairs[widget.tileIndex].getImageAssetPath()){
+              //correct
+              selected=true;
+              Future.delayed(const Duration(seconds: 2),(){
+                points =points + 100;
+                setState(() {
+                });
+                selected=false;
+                widget.parent.setState((){
+                  pairs[widget.tileIndex].setImageAssetPath("");
+                  pairs[selectedTileIndex].setImageAssetPath("");
+                });
+                selectedImageAssetPath="";
+              });
+            }else{
+              //wrong
+              selected=true;
+              Future.delayed(const Duration(seconds: 2),(){
+              //  if(points != 0){
+              //    points=points - 100;
+              //  }
+                selected=false;
+                widget.parent.setState((){
+                  pairs[widget.tileIndex].setIsSelected(false);
+                  pairs[selectedTileIndex].setIsSelected(false);
+                });
+                selectedImageAssetPath="";
+              });
+            }
+          }else{
+            selectedTileIndex= widget.tileIndex;
+            selectedImageAssetPath = pairs[widget.tileIndex].getImageAssetPath();
+          }
+          setState(() {
+            pairs[widget.tileIndex].setIsSelected(true);
+          });
           print("You clicked");
         }
       },
       child: Container(
         margin: EdgeInsets.all(5),
-        child: Image.asset(widget.imageAssetPath),
+        child: pairs[widget.tileIndex].getImageAssetPath() != "" ? Image.asset( pairs[widget.tileIndex].getIsSelected() ? pairs[widget.tileIndex].getImageAssetPath() : widget.imageAssetPath) : Image.asset("assets/correct.png"),
       ),
     );
   }
