@@ -1,6 +1,6 @@
 # memorygame
 
-A new Flutter project.
+A new Flutter game project.
 
 ## Getting Started
 
@@ -14,3 +14,11 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+![alt text]( https://github.com/blackcrabb/memory_game/blob/master/WhatsApp%20Image%202020-05-01%20at%205.52.11%20PM.jpeg "1")
+---
+![alt text]( https://github.com/blackcrabb/memory_game/blob/master/WhatsApp%20Image%202020-05-01%20at%205.52.11%20PM%20(1).jpeg "2")
+---
+![alt text](https://github.com/blackcrabb/memory_game/blob/master/WhatsApp%20Image%202020-05-01%20at%205.52.11%20PM%20(2).jpeg "3 ")
+---
+
